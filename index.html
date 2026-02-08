@@ -5,115 +5,477 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Quiddler Scorekeeper</title>
   <style>
-    :root { --pad: 12px; --border: #ddd; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
-    header { padding: 14px var(--pad); border-bottom: 1px solid var(--border); position: sticky; top: 0; background: #fff; }
-    main { padding: var(--pad); max-width: 1100px; margin: 0 auto; }
-    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    button, input, select { font: inherit; }
-    button { padding: 10px 12px; border: 1px solid var(--border); background: #fff; border-radius: 10px; cursor: pointer; }
-    button.primary { border-color: #000; }
-    button.danger { border-color: #c33; color: #c33; }
-    input[type="text"], input[type="number"] {
-      padding: 10px; border: 1px solid var(--border); border-radius: 10px;
+    :root{
+      --bg1:#0b1633;
+      --bg2:#0b4aa3;
+      --card:#ffffff;
+      --ink:#0b1220;
+      --muted:#5b677a;
+      --line:rgba(15, 23, 42, .10);
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --danger:#dc2626;
+      --shadow: 0 10px 30px rgba(2, 6, 23, .12);
+      --radius:18px;
+      --pad:14px;
     }
-    input[type="number"] { width: 92px; }
-    .card { border: 1px solid var(--border); border-radius: 14px; padding: var(--pad); }
-    .muted { color: #666; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
-    th { text-align: left; position: sticky; top: 62px; background: #fff; z-index: 1; }
-    td small { color: #666; }
-    .pill { display:inline-block; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; margin-left: 6px; }
-    .nowrap { white-space: nowrap; }
-    .grid2 { display:grid; grid-template-columns: 1fr; gap: 10px; }
-    @media (min-width: 900px) { .grid2 { grid-template-columns: 1fr 1fr; } }
-    .right { text-align: right; }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background: radial-gradient(1200px 700px at 20% -10%, rgba(37,99,235,.28), transparent 60%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(59,130,246,.22), transparent 55%),
+                  linear-gradient(180deg, #f3f6ff 0%, #f7f9ff 35%, #f8fafc 100%);
+      min-height:100vh;
+    }
+
+    /* Top bar */
+    header{
+      padding: 14px 14px 18px;
+      color:#fff;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .top{
+      max-width: 1060px;
+      margin: 0 auto;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .title{
+      font-weight:800;
+      font-size:18px;
+      letter-spacing:.2px;
+      margin:0;
+    }
+    .subtitle{
+      margin-top:4px;
+      font-size:13px;
+      opacity:.9;
+    }
+    .top-actions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    /* Buttons */
+    button{
+      font: inherit;
+      border:1px solid rgba(255,255,255,.22);
+      color:#fff;
+      background: rgba(255,255,255,.10);
+      padding:10px 12px;
+      border-radius: 12px;
+      cursor:pointer;
+      backdrop-filter: blur(8px);
+    }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      background: rgba(255,255,255,.92);
+      color: #0b1633;
+      border-color: rgba(255,255,255,.0);
+      font-weight:700;
+    }
+    button.ghost{
+      background: rgba(255,255,255,.10);
+      color:#fff;
+    }
+    button.danger{
+      background: rgba(220,38,38,.15);
+      border-color: rgba(220,38,38,.55);
+      color:#fff;
+    }
+
+    /* Layout */
+    main{
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    @media(min-width: 980px){
+      main{ grid-template-columns: 420px 1fr; align-items:start; }
+      .span2{ grid-column: 1 / -1; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .card .hd h2{
+      margin:0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .card .hd .meta{
+      font-size:12px;
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .card .bd{ padding: 14px; }
+
+    .muted{ color: var(--muted); }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(37,99,235,.06);
+      color: #163a8a;
+      font-size:12px;
+      font-weight:600;
+    }
+
+    /* Inputs */
+    input, select{
+      font: inherit;
+      width:100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 12px;
+      background:#fff;
+      outline:none;
+    }
+    input:focus, select:focus{
+      border-color: rgba(37,99,235,.45);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.12);
+    }
+    input[type="number"]{ text-align:right; }
+
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .grow{ flex:1; min-width:180px; }
+
+    /* Players list */
+    .players{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .player-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 12px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(37,99,235,.06), rgba(37,99,235,.02));
+    }
+    .player-item b{ font-size:15px; }
+    .player-item button{
+      border:1px solid rgba(220,38,38,.45);
+      background: rgba(220,38,38,.10);
+      color: var(--danger);
+      padding: 8px 10px;
+      border-radius: 12px;
+      backdrop-filter:none;
+    }
+
+    /* Entry cards (mobile-first) */
+    .entry-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .entry{
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      overflow:hidden;
+    }
+    .entry .t{
+      padding: 12px 12px 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      background: linear-gradient(90deg, rgba(37,99,235,.10), rgba(37,99,235,.02));
+      border-bottom: 1px solid var(--line);
+    }
+    .entry .t b{ font-size:15px; }
+    .entry .t .rt{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .score-badge{
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(37,99,235,.12);
+      border: 1px solid rgba(37,99,235,.18);
+      color: #163a8a;
+      font-weight:800;
+      font-size:12px;
+    }
+    .entry .g{
+      padding: 12px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .field label{
+      display:block;
+      font-size:12px;
+      color: var(--muted);
+      margin: 0 0 6px;
+    }
+    .toggles{
+      grid-column: 1 / -1;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      padding-top: 2px;
+    }
+    .toggle{
+      flex: 1;
+      min-width: 160px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+    .toggle span{
+      font-size:13px;
+      color: var(--ink);
+      font-weight:650;
+    }
+    .toggle small{ display:block; font-weight:600; color:var(--muted); margin-top:2px; }
+    .toggle input{ width:auto; }
+
+    .entry-actions{
+      display:flex;
+      justify-content:flex-end;
+      margin-top:10px;
+    }
+    .save-round{
+      width:100%;
+      border:none;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color:#fff;
+      font-weight:800;
+      letter-spacing:.2px;
+      box-shadow: 0 10px 22px rgba(37,99,235,.22);
+    }
+
+    /* Leaderboard (cards on mobile) */
+    .leader{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .leader-item{
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background:#fff;
+      overflow:hidden;
+    }
+    .leader-item .topline{
+      padding: 12px 12px 10px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: linear-gradient(90deg, rgba(37,99,235,.10), rgba(37,99,235,.02));
+      border-bottom: 1px solid var(--line);
+    }
+    .leader-item .topline .name{
+      display:flex; align-items:baseline; gap:8px;
+      font-weight:900;
+    }
+    .rank{
+      width:26px; height:26px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(37,99,235,.14);
+      color: #163a8a;
+      font-weight:900;
+      font-size:12px;
+      border: 1px solid rgba(37,99,235,.18);
+    }
+    .total{
+      font-weight:900;
+      color:#0b1633;
+      font-size:14px;
+    }
+    .rounds{
+      padding: 10px 12px 12px;
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:8px;
+    }
+    @media(min-width: 520px){
+      .rounds{ grid-template-columns: repeat(8, minmax(0,1fr)); }
+    }
+    .rchip{
+      padding: 8px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      text-align:center;
+      background: #fff;
+    }
+    .rchip small{
+      display:block;
+      font-size:11px;
+      color: var(--muted);
+      margin-bottom: 2px;
+      font-weight:700;
+    }
+    .rchip b{
+      font-size:13px;
+    }
+
+    /* Desktop: show compact table too (optional) */
+    .tablewrap{ display:none; }
+    @media(min-width: 980px){
+      .tablewrap{ display:block; overflow:auto; }
+      .leader{ display:none; }
+      table{ width:100%; border-collapse:collapse; }
+      th, td{ padding: 10px 8px; border-bottom: 1px solid var(--line); }
+      th{ text-align:left; font-size:12px; color: var(--muted); background:#fff; }
+      td.right{ text-align:right; }
+    }
+
+    .note{
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.35;
+      margin-top:10px;
+    }
+    .divider{ height:1px; background: var(--line); margin: 14px 0; }
+
+    /* subtle footer space */
+    .spacer{ height: 10px; }
   </style>
 </head>
 <body>
+
 <header>
-  <div class="row" style="justify-content:space-between;">
+  <div class="top">
     <div>
-      <div style="font-weight:700;">Quiddler Scorekeeper</div>
-      <div class="muted" style="font-size:13px;">8 rounds (3→10 cards). Bonuses split on ties. Autosaves on this device.</div>
+      <div class="title">Quiddler Scorekeeper</div>
+      <div class="subtitle">8 rounds (3→10 cards). Bonuses split on ties. Autosaves on this device.</div>
     </div>
-    <div class="row">
-      <button id="exportBtn">Export CSV</button>
+    <div class="top-actions">
+      <button id="exportBtn" class="primary">Export CSV</button>
       <button id="resetBtn" class="danger">Reset</button>
     </div>
   </div>
 </header>
 
-<main class="grid2">
+<main>
+  <!-- Left column -->
   <section class="card">
-    <div style="font-weight:700;margin-bottom:10px;">Players</div>
-    <div class="row">
-      <input id="playerName" type="text" placeholder="Add player name" style="flex:1;min-width:190px;">
-      <button id="addPlayerBtn" class="primary">Add</button>
+    <div class="hd">
+      <h2>Players</h2>
+      <span class="pill" title="Stored on this device">Autosave ✓</span>
     </div>
-    <div id="playerList" style="margin-top:10px;"></div>
+    <div class="bd">
+      <div class="row">
+        <input id="playerName" class="grow" type="text" placeholder="Add player name">
+        <button id="addPlayerBtn" class="save-round" style="width:auto; padding:12px 14px;">Add</button>
+      </div>
 
-    <hr style="border:none;border-top:1px solid var(--border);margin:14px 0;" />
+      <div id="playerList" class="players"></div>
 
-    <div style="font-weight:700;margin-bottom:6px;">Round</div>
-    <div class="row">
-      <select id="roundSel" style="padding:10px;border:1px solid var(--border);border-radius:10px;">
-        <option value="1">Round 1 (3 cards)</option>
-        <option value="2">Round 2 (4 cards)</option>
-        <option value="3">Round 3 (5 cards)</option>
-        <option value="4">Round 4 (6 cards)</option>
-        <option value="5">Round 5 (7 cards)</option>
-        <option value="6">Round 6 (8 cards)</option>
-        <option value="7">Round 7 (9 cards)</option>
-        <option value="8">Round 8 (10 cards)</option>
-      </select>
-      <span class="muted">Bonuses: +10 split among checked winners.</span>
-    </div>
+      <div class="divider"></div>
 
-    <div style="margin-top:12px;" class="muted">
-      Scoring per player, per round:
-      <span class="pill nowrap">max(0, WordPoints − UnusedPoints) + splitBonuses + challengeAdj</span>
+      <div class="row" style="align-items:flex-end;">
+        <div style="flex:1; min-width:220px;">
+          <div style="font-weight:850; font-size:14px; margin-bottom:8px;">Round</div>
+          <select id="roundSel">
+            <option value="1">Round 1 (3 cards)</option>
+            <option value="2">Round 2 (4 cards)</option>
+            <option value="3">Round 3 (5 cards)</option>
+            <option value="4">Round 4 (6 cards)</option>
+            <option value="5">Round 5 (7 cards)</option>
+            <option value="6">Round 6 (8 cards)</option>
+            <option value="7">Round 7 (9 cards)</option>
+            <option value="8">Round 8 (10 cards)</option>
+          </select>
+        </div>
+        <div style="flex:1; min-width:220px;">
+          <div style="font-weight:850; font-size:14px; margin-bottom:8px;">Scoring</div>
+          <div class="pill">max(0, Word − Unused) + bonuses + challenge</div>
+        </div>
+      </div>
+
+      <div class="note">
+        Tip: If there’s a tie for Longest/Most Words, just check all tied players — the app splits the +10 evenly.
+      </div>
     </div>
   </section>
 
+  <!-- Right column -->
   <section class="card">
-    <div class="row" style="justify-content:space-between;">
-      <div style="font-weight:700;">Enter scores for selected round</div>
-      <div class="muted" id="roundHelp"></div>
+    <div class="hd">
+      <h2>Enter scores</h2>
+      <span class="meta" id="roundHelp"></span>
     </div>
-
-    <div id="entryArea" style="margin-top:10px;"></div>
-
-    <div class="row" style="justify-content:flex-end;margin-top:10px;">
-      <button id="applyBtn" class="primary">Save Round Scores</button>
+    <div class="bd">
+      <div id="entryArea"></div>
+      <div class="spacer"></div>
     </div>
   </section>
 
-  <section class="card" style="grid-column:1 / -1;">
-    <div class="row" style="justify-content:space-between;">
-      <div style="font-weight:700;">Leaderboard</div>
-      <div class="muted" id="lastSaved"></div>
+  <!-- Leaderboard -->
+  <section class="card span2">
+    <div class="hd">
+      <h2>Leaderboard</h2>
+      <span class="meta" id="lastSaved"></span>
     </div>
-    <div style="overflow:auto;margin-top:10px;">
-      <table id="scoreTable"></table>
+    <div class="bd">
+      <div id="leaderCards" class="leader"></div>
+      <div class="tablewrap">
+        <table id="scoreTable"></table>
+      </div>
     </div>
   </section>
 </main>
 
 <script>
 (() => {
-  const STORAGE_KEY = "quiddler_scorekeeper_v2_split_bonus";
+  const STORAGE_KEY = "quiddler_scorekeeper_v4_mobile_blue";
 
   const state = load() ?? {
     players: [], // {id, name}
-    // rounds[r][playerId] = {word, unused, longWin(bool), mostWin(bool), chall, bonusLong, bonusMost, total}
+    // rounds[r][playerId] = {word, unused, longWin, mostWin, chall, bonusLong, bonusMost, total}
     rounds: Array.from({length: 8}, () => ({})),
     updatedAt: null
   };
 
   const $ = (id) => document.getElementById(id);
-
   const roundCards = (r) => 2 + r; // r=1 -> 3 cards ... r=8 -> 10 cards
   const fmtTime = (ts) => ts ? new Date(ts).toLocaleString() : "";
 
@@ -122,21 +484,26 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     $("lastSaved").textContent = state.updatedAt ? `Saved: ${fmtTime(state.updatedAt)}` : "";
   }
-
   function load() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : null;
     } catch { return null; }
   }
-
   function uid() {
     return Math.random().toString(16).slice(2) + Date.now().toString(16);
   }
 
+  function normName(name) { return String(name ?? "").trim(); }
+  function playerNameExists(name) {
+    const clean = normName(name).toLowerCase();
+    return state.players.some(p => normName(p.name).toLowerCase() === clean);
+  }
+
   function addPlayer(name) {
-    const clean = (name ?? "").trim();
+    const clean = normName(name);
     if (!clean) return;
+    if (playerNameExists(clean)) return;
     state.players.push({ id: uid(), name: clean });
     save();
     renderAll();
@@ -162,20 +529,17 @@
   }
 
   function splitBonusesFromUI() {
-    const rows = [...document.querySelectorAll("#entryArea tbody tr")];
-    const longWinners = rows.filter(tr => tr.querySelector('[data-k="longWin"]')?.checked);
-    const mostWinners = rows.filter(tr => tr.querySelector('[data-k="mostWin"]')?.checked);
+    const rows = [...document.querySelectorAll("#entryArea .entry")];
+    const longWinners = rows.filter(el => el.querySelector('[data-k="longWin"]')?.checked);
+    const mostWinners = rows.filter(el => el.querySelector('[data-k="mostWin"]')?.checked);
 
     const longShare = longWinners.length ? (10 / longWinners.length) : 0;
     const mostShare = mostWinners.length ? (10 / mostWinners.length) : 0;
 
-    // Map: playerId -> {bonusLong, bonusMost}
     const bonuses = new Map();
-    for (const tr of rows) bonuses.set(tr.getAttribute("data-pid"), { bonusLong: 0, bonusMost: 0 });
-
-    for (const tr of longWinners) bonuses.get(tr.getAttribute("data-pid")).bonusLong = longShare;
-    for (const tr of mostWinners) bonuses.get(tr.getAttribute("data-pid")).bonusMost = mostShare;
-
+    for (const el of rows) bonuses.set(el.getAttribute("data-pid"), { bonusLong: 0, bonusMost: 0 });
+    for (const el of longWinners) bonuses.get(el.getAttribute("data-pid")).bonusLong = longShare;
+    for (const el of mostWinners) bonuses.get(el.getAttribute("data-pid")).bonusMost = mostShare;
     return bonuses;
   }
 
@@ -186,9 +550,9 @@
       return;
     }
     wrap.innerHTML = state.players.map(p => `
-      <div class="row" style="justify-content:space-between;border:1px solid var(--border);border-radius:12px;padding:10px;margin-top:8px;">
+      <div class="player-item">
         <div><b>${escapeHtml(p.name)}</b></div>
-        <button class="danger" data-del="${p.id}">Remove</button>
+        <button data-del="${p.id}" aria-label="Remove ${escapeHtml(p.name)}">Remove</button>
       </div>
     `).join("");
 
@@ -199,7 +563,7 @@
 
   function renderEntryArea() {
     const r = Number($("roundSel").value);
-    $("roundHelp").textContent = `Round ${r} (${roundCards(r)} cards)`;
+    $("roundHelp").textContent = `Round ${r} · ${roundCards(r)} cards`;
 
     const area = $("entryArea");
     if (state.players.length === 0) {
@@ -210,57 +574,83 @@
     const roundObj = state.rounds[r-1];
 
     area.innerHTML = `
-      <div style="overflow:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th class="nowrap">Word Points<br><small>(sum of cards in valid words)</small></th>
-              <th class="nowrap">Unused Points<br><small>(cards left over)</small></th>
-              <th class="nowrap">Longest Winners<br><small>(splits +10)</small></th>
-              <th class="nowrap">Most Words Winners<br><small>(splits +10)</small></th>
-              <th class="nowrap">Challenge Adj<br><small>(optional ±)</small></th>
-              <th class="right nowrap">Round Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${state.players.map(p => {
-              const e = roundObj[p.id] ?? {word:0, unused:0, longWin:false, mostWin:false, chall:0, bonusLong:0, bonusMost:0, total:0};
-              return `
-                <tr data-pid="${p.id}">
-                  <td><b>${escapeHtml(p.name)}</b></td>
-                  <td><input type="number" min="0" step="1" value="${Number(e.word||0)}" data-k="word"></td>
-                  <td><input type="number" min="0" step="1" value="${Number(e.unused||0)}" data-k="unused"></td>
-                  <td><input type="checkbox" ${e.longWin ? "checked":""} data-k="longWin"></td>
-                  <td><input type="checkbox" ${e.mostWin ? "checked":""} data-k="mostWin"></td>
-                  <td><input type="number" step="1" value="${Number(e.chall||0)}" data-k="chall"></td>
-                  <td class="right"><span class="pill" data-k="total">0</span></td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
+      <div class="entry-list">
+        ${state.players.map(p => {
+          const e = roundObj[p.id] ?? {word:0, unused:0, longWin:false, mostWin:false, chall:0, bonusLong:0, bonusMost:0, total:0};
+          return `
+            <div class="entry" data-pid="${p.id}">
+              <div class="t">
+                <b>${escapeHtml(p.name)}</b>
+                <div class="rt">
+                  <span class="muted" style="font-size:12px;">Round total</span>
+                  <span class="score-badge" data-k="total">0</span>
+                </div>
+              </div>
+              <div class="g">
+                <div class="field">
+                  <label>Word points</label>
+                  <input type="number" min="0" step="1" value="${Number(e.word||0)}" data-k="word">
+                </div>
+                <div class="field">
+                  <label>Unused points</label>
+                  <input type="number" min="0" step="1" value="${Number(e.unused||0)}" data-k="unused">
+                </div>
+
+                <div class="toggles">
+                  <label class="toggle">
+                    <div>
+                      <span>Longest word</span>
+                      <small>splits +10</small>
+                    </div>
+                    <input type="checkbox" ${e.longWin ? "checked":""} data-k="longWin">
+                  </label>
+
+                  <label class="toggle">
+                    <div>
+                      <span>Most words</span>
+                      <small>splits +10</small>
+                    </div>
+                    <input type="checkbox" ${e.mostWin ? "checked":""} data-k="mostWin">
+                  </label>
+
+                  <div class="field" style="flex:1; min-width:160px;">
+                    <label>Challenge adj (±)</label>
+                    <input type="number" step="1" value="${Number(e.chall||0)}" data-k="chall">
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("")}
       </div>
-      <div class="muted" style="margin-top:8px;font-size:13px;">
-        Tip: If there’s a tie, just check all tied players — the app splits the +10 evenly (e.g., 2-way tie = +5 each).
+
+      <div class="entry-actions">
+        <button id="applyBtn" class="save-round">Save Round Scores</button>
+      </div>
+
+      <div class="note">
+        Base score is floored at 0 (max(0, Word − Unused)). Challenge adjustment can be used for penalties/awards your group tracks.
       </div>
     `;
 
-    // live recalc
-    area.querySelectorAll("tbody tr").forEach(tr => {
-      tr.addEventListener("input", () => updateAllTotals());
-      tr.addEventListener("change", () => updateAllTotals());
+    // Live recalc
+    area.querySelectorAll(".entry").forEach(el => {
+      el.addEventListener("input", updateAllTotals);
+      el.addEventListener("change", updateAllTotals);
     });
+
+    // Hook save button (re-render replaces it)
+    $("applyBtn").addEventListener("click", applyRound);
 
     updateAllTotals();
   }
 
-  function readRow(tr) {
+  function readEntry(el) {
     const get = (k) => {
-      const el = tr.querySelector(`[data-k="${k}"]`);
-      if (!el) return null;
-      if (el.type === "checkbox") return el.checked;
-      return el.value;
+      const node = el.querySelector(`[data-k="${k}"]`);
+      if (!node) return null;
+      if (node.type === "checkbox") return node.checked;
+      return node.value;
     };
     return {
       word: get("word"),
@@ -273,33 +663,26 @@
 
   function updateAllTotals() {
     const bonuses = splitBonusesFromUI();
-    document.querySelectorAll("#entryArea tbody tr").forEach(tr => {
-      const pid = tr.getAttribute("data-pid");
-      const e = readRow(tr);
+    document.querySelectorAll("#entryArea .entry").forEach(el => {
+      const pid = el.getAttribute("data-pid");
+      const e = readEntry(el);
       const b = bonuses.get(pid) || {bonusLong:0, bonusMost:0};
       const total = roundTotal({ ...e, ...b });
-      tr.querySelector('[data-k="total"]').textContent = pretty(total);
+      el.querySelector('[data-k="total"]').textContent = pretty(total);
     });
   }
 
   function applyRound() {
     const r = Number($("roundSel").value);
     const roundObj = state.rounds[r-1];
-
     const bonuses = splitBonusesFromUI();
 
-    document.querySelectorAll("#entryArea tbody tr").forEach(tr => {
-      const pid = tr.getAttribute("data-pid");
-      const e = readRow(tr);
+    document.querySelectorAll("#entryArea .entry").forEach(el => {
+      const pid = el.getAttribute("data-pid");
+      const e = readEntry(el);
       const b = bonuses.get(pid) || {bonusLong:0, bonusMost:0};
       const total = roundTotal({ ...e, ...b });
-
-      roundObj[pid] = {
-        ...e,
-        bonusLong: b.bonusLong,
-        bonusMost: b.bonusMost,
-        total: total
-      };
+      roundObj[pid] = { ...e, bonusLong: b.bonusLong, bonusMost: b.bonusMost, total };
     });
 
     save();
@@ -313,48 +696,78 @@
     for (let r = 0; r < 8; r++) {
       const ro = state.rounds[r];
       for (const p of state.players) {
-        totals.set(p.id, (totals.get(p.id) || 0) + Number((ro[p.id]?.total) || 0));
+        totals.set(p.id, (totals.get(p.id) || 0) + Number(ro[p.id]?.total || 0));
       }
     }
     return totals;
   }
 
   function renderScores() {
-    const table = $("scoreTable");
-    if (state.players.length === 0) {
-      table.innerHTML = `<tr><td class="muted">No players yet.</td></tr>`;
-      return;
-    }
-
     const totals = totalsByPlayer();
+
+    // Sort: highest total first, then name
     const sorted = [...state.players].sort((a,b) => (totals.get(b.id) - totals.get(a.id)) || a.name.localeCompare(b.name));
 
-    const head = `
-      <thead>
-        <tr>
-          <th>Player</th>
-          ${Array.from({length:8}, (_,i)=>`<th class="right nowrap">R${i+1}</th>`).join("")}
-          <th class="right nowrap">Total</th>
-        </tr>
-      </thead>
-    `;
+    // Mobile cards
+    const cards = $("leaderCards");
+    if (sorted.length === 0) {
+      cards.innerHTML = `<div class="muted">No players yet.</div>`;
+    } else {
+      cards.innerHTML = sorted.map((p, idx) => {
+        const perRound = state.rounds.map(ro => Number(ro[p.id]?.total || 0));
+        return `
+          <div class="leader-item">
+            <div class="topline">
+              <div class="name">
+                <span class="rank">${idx+1}</span>
+                <span>${escapeHtml(p.name)}</span>
+              </div>
+              <div class="total">Total: ${pretty(totals.get(p.id) || 0)}</div>
+            </div>
+            <div class="rounds">
+              ${perRound.map((v, i) => `
+                <div class="rchip">
+                  <small>R${i+1}</small>
+                  <b>${pretty(v)}</b>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
 
-    const body = `
-      <tbody>
-        ${sorted.map(p => {
-          const perRound = state.rounds.map(ro => Number(ro[p.id]?.total || 0));
-          return `
-            <tr>
-              <td><b>${escapeHtml(p.name)}</b></td>
-              ${perRound.map(v => `<td class="right">${pretty(v)}</td>`).join("")}
-              <td class="right"><b>${pretty(totals.get(p.id))}</b></td>
-            </tr>
-          `;
-        }).join("")}
-      </tbody>
-    `;
+    // Desktop table (optional)
+    const table = $("scoreTable");
+    if (sorted.length === 0) {
+      table.innerHTML = `<tr><td class="muted">No players yet.</td></tr>`;
+    } else {
+      const head = `
+        <thead>
+          <tr>
+            <th>Player</th>
+            ${Array.from({length:8}, (_,i)=>`<th style="text-align:right;">R${i+1}</th>`).join("")}
+            <th style="text-align:right;">Total</th>
+          </tr>
+        </thead>
+      `;
+      const body = `
+        <tbody>
+          ${sorted.map(p => {
+            const perRound = state.rounds.map(ro => Number(ro[p.id]?.total || 0));
+            return `
+              <tr>
+                <td><b>${escapeHtml(p.name)}</b></td>
+                ${perRound.map(v => `<td class="right">${pretty(v)}</td>`).join("")}
+                <td class="right"><b>${pretty(totals.get(p.id) || 0)}</b></td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      `;
+      table.innerHTML = head + body;
+    }
 
-    table.innerHTML = head + body;
     $("lastSaved").textContent = state.updatedAt ? `Saved: ${fmtTime(state.updatedAt)}` : "";
   }
 
@@ -387,7 +800,6 @@
 
   function pretty(n) {
     const x = Number(n || 0);
-    // show up to 2 decimals only when needed
     return (Math.abs(x - Math.round(x)) < 1e-9) ? String(Math.round(x)) : x.toFixed(2);
   }
 
@@ -403,22 +815,27 @@
     renderScores();
   }
 
-  // events
+  // Events — prevent iOS double-trigger and block duplicates
   $("addPlayerBtn").addEventListener("click", () => {
-    addPlayer($("playerName").value);
+    const name = $("playerName").value;
+    if (!name.trim()) return;
+    if (playerNameExists(name)) return;
+    addPlayer(name);
     $("playerName").value = "";
     $("playerName").focus();
   });
+
   $("playerName").addEventListener("keydown", (e) => {
-    if (e.key === "Enter") $("addPlayerBtn").click();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      $("addPlayerBtn").click();
+    }
   });
 
   $("roundSel").addEventListener("change", renderEntryArea);
-  $("applyBtn").addEventListener("click", applyRound);
   $("exportBtn").addEventListener("click", exportCSV);
   $("resetBtn").addEventListener("click", resetAll);
 
-  // initial
   renderAll();
   $("lastSaved").textContent = state.updatedAt ? `Saved: ${fmtTime(state.updatedAt)}` : "";
 })();
